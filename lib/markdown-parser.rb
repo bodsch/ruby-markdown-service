@@ -10,6 +10,7 @@ module MarkdownParser
 
       @defaultWebRoot = settings.dig(:defaultPath)
       @publicFolder   = settings.dig(:publicFolder)
+      @styleSheets    = settings.dig(:styleSheets)
 
     end
 
@@ -25,7 +26,6 @@ module MarkdownParser
 
     def generatePage( params = {} )
 
-      # {"splat"=>[], "captures"=>["index.md"], "base"=>"index.md"}
       if( params.is_a?( String ) )
         params = {}
         params['base'] = 'index.md'
@@ -37,8 +37,8 @@ module MarkdownParser
 
       files = Array.new()
       files = [
-        ('%s/%s' % [ @publicFolder, fileName ]),
-        ('%s/_default/%s' % [ @defaultWebRoot, fileName ])
+        sprintf( '%s/%s'         , @publicFolder  , fileName ),
+        sprintf( '%s/_default/%s', @defaultWebRoot, fileName )
       ]
 
       files.each do |f|
@@ -51,33 +51,51 @@ module MarkdownParser
       end
 
       if( markdownFile == nil )
-        markdownFile = ('%s/_default/404.md' % [ @defaultWebRoot ])
+        markdownFile = sprintf( '%s/_default/404.md', @defaultWebRoot )
       end
 
-      name     = markdownFile.split('.').first
-#       ext      = markdownFile.split('.').last
+      name         = markdownFile.split('.').first
       markdownFile = name  + ".md"
 
 
-      template = File.read('%s/_template/index.erb' % [ @defaultWebRoot ])
+      template = File.read( sprintf( '%s/_template/index.erb', @defaultWebRoot ) )
 
       renderer = ERB.new( template )
 
       # Template Datas
-      title         = ''
+      title         = markdownFile.split('/').last.split('.').first
+      styleSheet    = @styleSheets
+      favicon       = ''
       markdownData  = self.parse( markdownFile )
+
 
       # render the template
       return output = renderer.result(binding)
 
     end
 
-    def source()
 
-      parts    = params[:base].split('.')
+    def getStylesheet()
 
+      stylesheet = nil
 
-      generatePage( filename )
+      files = Array.new()
+      files = [
+        sprintf( '%s/%s'               , @publicFolder  , @styleSheets ),
+        sprintf( '%s/_styles/%s'       , @defaultWebRoot, @styleSheets ),
+        sprintf( '%s/_styles/style.css', @defaultWebRoot )
+      ]
+
+      files.each do |f|
+
+        if( File.exist?( f ) )
+          stylesheet = f
+          break
+        end
+
+      end
+
+      return stylesheet
 
     end
 

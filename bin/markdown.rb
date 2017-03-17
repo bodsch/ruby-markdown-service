@@ -25,6 +25,7 @@ module Sinatra
       @publicFolder     = '/var/www'
       @restServicePort  = 2222
       @restServiceBind  = '0.0.0.0'
+      @stylesheet       = 'style.css'
 
       if( File.exist?( '/etc/markdown-service.yaml' ) )
 
@@ -33,9 +34,7 @@ module Sinatra
         @publicFolder     = config.dig( 'publicFolder' )
         @restServicePort  = config.dig( 'port' )
         @restServiceBind  = config.dig( 'bind' )
-
-      else
-        puts "no configuration exists, use default settings"
+        @stylesheet       = config.dig( 'stylesheet' )
       end
 
       @defaultPath = File.expand_path( '../', File.dirname( __FILE__ ) )
@@ -56,14 +55,15 @@ module Sinatra
     # -----------------------------------------------------------------------------
 
     before do
-      headers "Content-Type" => "text/html; charset=utf8"
+      headers 'Content-Type' => 'text/html; charset=utf8'
     end
 
     # -----------------------------------------------------------------------------
 
     config = {
       :defaultPath  => @defaultPath,
-      :publicFolder => @publicFolder
+      :publicFolder => @publicFolder,
+      :styleSheets  => @stylesheet
     }
 
     parser = MarkdownParser::Parser.new( config )
@@ -73,9 +73,9 @@ module Sinatra
     # serve our stylesheet
     get '/style.css'do
 
-      headers "Content-Type" => "text/css; charset=utf8"
+      headers 'Content-Type' => 'text/css; charset=utf8'
 
-      style = File.read( 'style.css' )
+      style = File.read( parser.getStylesheet() )
       style
 
     end

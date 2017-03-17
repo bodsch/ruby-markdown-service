@@ -3,9 +3,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <!--    <link rel="icon" type="image/x-icon" href="/favicon.ico"> -->
+    <% if favicon %>
+    <link rel="icon" type="image/x-icon" href="<%= favicon %>">
+    <% end %>
     <title>operation-view : <%= title %></title>
-    <link crossorigin="anonymous" href="style.css" media="all" rel="stylesheet" />
+    <link crossorigin="anonymous" href="<%= styleSheet %>" media="all" rel="stylesheet" />
     <!--    <style type="text/css">#{style}</style> -->
   </head>
   <body>
