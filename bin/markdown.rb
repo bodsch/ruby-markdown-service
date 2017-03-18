@@ -17,13 +17,11 @@ require_relative '../lib/logging'
 
 module Sinatra
 
-  class CertServiceRest < Base
+  class MarkdownService < Base
 
     include Logging
 
     configure do
-
-      set :environment, :production
 
       @publicFolder    = ENV.fetch( 'PUBLIC_FOLDER'  , '/var/www' )
       @restServicePort = ENV.fetch( 'PORT', 2222 )
@@ -32,6 +30,11 @@ module Sinatra
 
       @defaultPath     = File.expand_path( '../', File.dirname( __FILE__ ) )
 
+      file      = File.new( '/var/log/sinatra.log', File::WRONLY | File::APPEND | File::CREAT, 0666 )
+      file.sync = true
+
+      use Rack::CommonLogger, file
+
     end
 
     set :environment, :production
@@ -39,8 +42,7 @@ module Sinatra
     set :app_file, caller_files.first || $0
     set :run, Proc.new { $0 == app_file }
     set :dump_errors, true
-    set :show_exceptions, false
-    set :public_folder, @publicFolder
+    set :show_exceptions, true
 
     set :bind, @restServiceBind
     set :port, @restServicePort.to_i
@@ -60,8 +62,6 @@ module Sinatra
     # serve our stylesheet
     get '/*.css' do
 
-      logger.debug( "request: #{params}" )
-
       headers 'Content-Type' => 'text/css; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=3200'
 
@@ -70,22 +70,21 @@ module Sinatra
 
     end
 
-    # serve a index site
-    get '/' do
+    # serve an individual favicon
+    get '/*.ico' do
 
-      logger.debug( 'request: /' )
-
-      headers 'Content-Type' => 'text/html; charset=utf8'
-      response.headers['Cache-Control'] = 'public, max-age=300'
-
-      parser.generatePage( 'index.md' )
+#       logger.debug( "request: #{params}" )
+#
+#       headers 'Content-Type' => 'text/css; charset=utf8'
+#       response.headers['Cache-Control'] = 'public, max-age=3200'
+#
+#       style = File.read( parser.getStylesheet() )
+#       style
 
     end
 
-    # serve named sites
-    get '/:base' do
-
-      logger.debug( "request: #{params}" )
+    # serve all the rest
+    get '/*' do
 
       headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'

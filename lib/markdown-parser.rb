@@ -19,6 +19,17 @@ module MarkdownParser
       @publicFolder   = settings.dig(:publicFolder)
       @styleSheets    = settings.dig(:styleSheets)
 
+      version              = '0.7.0'
+      date                 = '2017-03-18'
+
+      logger.info( '-----------------------------------------------------------------' )
+      logger.info( ' Markdown Server' )
+      logger.info( "  Version #{version} (#{date})" )
+      logger.info( '  Copyright 2017 Bodo Schulz' )
+      logger.info( '' )
+      logger.info( '-----------------------------------------------------------------' )
+      logger.info( '' )
+
     end
 
     def parse( markdownFile )
@@ -33,14 +44,13 @@ module MarkdownParser
 
     def generatePage( params = {} )
 
-      logger.debug( params )
+      fileName = params.dig(:splat).first
 
-      if( params.is_a?( String ) )
-        params = {}
-        params['base'] = 'index.md'
+      if( fileName == '' )
+        fileName = 'index.md'
       end
 
-      fileName = params.dig('base')
+      fileName = sprintf( '%s.md', fileName.split('.').first )
 
       markdownFile = nil
 
@@ -49,6 +59,8 @@ module MarkdownParser
         sprintf( '%s/%s'         , @publicFolder  , fileName ),
         sprintf( '%s/_default/%s', @defaultWebRoot, fileName )
       ]
+
+      logger.debug( "search files #{files}" )
 
       files.each do |f|
 
@@ -65,13 +77,7 @@ module MarkdownParser
 
       logger.debug( "use file: #{markdownFile}" )
 
-      name         = markdownFile.split('.').first
-      markdownFile = name  + ".md"
-
-
       template = File.read( sprintf( '%s/_template/index.erb', @defaultWebRoot ) )
-
-      logger.debug( "use template: #{template}" )
 
       renderer = ERB.new( template )
 
