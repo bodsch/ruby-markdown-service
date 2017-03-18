@@ -1,10 +1,17 @@
 
+
 require 'redcarpet'
 require 'erb'
+
+require_relative 'logging'
+
+# -----------------------------------------------------------------------------
 
 module MarkdownParser
 
   class Parser
+
+    include Logging
 
     def initialize( settings = {} )
 
@@ -25,6 +32,8 @@ module MarkdownParser
     end
 
     def generatePage( params = {} )
+
+      logger.debug( params )
 
       if( params.is_a?( String ) )
         params = {}
@@ -54,11 +63,15 @@ module MarkdownParser
         markdownFile = sprintf( '%s/_default/404.md', @defaultWebRoot )
       end
 
+      logger.debug( "use file: #{markdownFile}" )
+
       name         = markdownFile.split('.').first
       markdownFile = name  + ".md"
 
 
       template = File.read( sprintf( '%s/_template/index.erb', @defaultWebRoot ) )
+
+      logger.debug( "use template: #{template}" )
 
       renderer = ERB.new( template )
 
@@ -94,6 +107,8 @@ module MarkdownParser
         end
 
       end
+
+      logger.debug( "use stylesheet: #{stylesheet}" )
 
       return stylesheet
 

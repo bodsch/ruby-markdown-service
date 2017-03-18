@@ -11,6 +11,7 @@ require 'sinatra/base'
 require 'yaml'
 
 require_relative '../lib/markdown-parser'
+require_relative '../lib/logging'
 
 # -----------------------------------------------------------------------------
 
@@ -18,26 +19,18 @@ module Sinatra
 
   class CertServiceRest < Base
 
+    include Logging
+
     configure do
 
       set :environment, :production
 
-      @publicFolder     = '/var/www'
-      @restServicePort  = 2222
-      @restServiceBind  = '0.0.0.0'
-      @stylesheet       = 'style.css'
+      @publicFolder    = ENV.fetch( 'PUBLIC_FOLDER'  , '/var/www' )
+      @restServicePort = ENV.fetch( 'PORT', 2222 )
+      @restServiceBind = ENV.fetch( 'BIND_TO', '0.0.0.0' )
+      @stylesheet      = ENV.fetch( 'STYLESHEET', 'style.css' )
 
-      if( File.exist?( '/etc/markdown-service.yaml' ) )
-
-        config = YAML.load_file( '/etc/markdown-service.yaml' )
-
-        @publicFolder     = config.dig( 'publicFolder' )
-        @restServicePort  = config.dig( 'port' )
-        @restServiceBind  = config.dig( 'bind' )
-        @stylesheet       = config.dig( 'stylesheet' )
-      end
-
-      @defaultPath = File.expand_path( '../', File.dirname( __FILE__ ) )
+      @defaultPath     = File.expand_path( '../', File.dirname( __FILE__ ) )
 
     end
 
@@ -54,12 +47,6 @@ module Sinatra
 
     # -----------------------------------------------------------------------------
 
-    before do
-      headers 'Content-Type' => 'text/html; charset=utf8'
-    end
-
-    # -----------------------------------------------------------------------------
-
     config = {
       :defaultPath  => @defaultPath,
       :publicFolder => @publicFolder,
@@ -71,9 +58,12 @@ module Sinatra
     # -----------------------------------------------------------------------------
 
     # serve our stylesheet
-    get '/style.css'do
+    get '/*.css' do
+
+      logger.debug( "request: #{params}" )
 
       headers 'Content-Type' => 'text/css; charset=utf8'
+      response.headers['Cache-Control'] = 'public, max-age=3200'
 
       style = File.read( parser.getStylesheet() )
       style
@@ -83,6 +73,9 @@ module Sinatra
     # serve a index site
     get '/' do
 
+      logger.debug( 'request: /' )
+
+      headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'
 
       parser.generatePage( 'index.md' )
@@ -92,6 +85,9 @@ module Sinatra
     # serve named sites
     get '/:base' do
 
+      logger.debug( "request: #{params}" )
+
+      headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'
 
       parser.generatePage( params )
