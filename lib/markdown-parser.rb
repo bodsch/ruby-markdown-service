@@ -19,8 +19,8 @@ module MarkdownParser
       @publicFolder   = settings.dig(:publicFolder)
       @styleSheets    = settings.dig(:styleSheets)
 
-      version              = '0.7.0'
-      date                 = '2017-03-18'
+      version              = '0.8.0'
+      date                 = '2017-03-21'
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
@@ -41,6 +41,7 @@ module MarkdownParser
       return markdown
 
     end
+
 
     def generatePage( params = {} )
 
@@ -77,7 +78,7 @@ module MarkdownParser
 
       logger.debug( "use file: #{markdownFile}" )
 
-      template = File.read( sprintf( '%s/_template/index.erb', @defaultWebRoot ) )
+      template = File.read( getTemplate() )
 
       renderer = ERB.new( template )
 
@@ -120,6 +121,32 @@ module MarkdownParser
 
     end
 
+    private
+
+    def getTemplate( tpl = 'index.erb' )
+
+      templatefile = nil
+
+      files = Array.new()
+      files = [
+        sprintf( '%s/_template/%s', @publicFolder  , tpl ),
+        sprintf( '%s/_template/%s', @defaultWebRoot, tpl )
+      ]
+
+      logger.debug( "search templates #{files}" )
+
+      files.each do |f|
+
+        if( File.exist?( f ) )
+          templatefile = f
+          break
+        end
+
+      end
+
+      return templatefile
+
+    end
 
   end
 
