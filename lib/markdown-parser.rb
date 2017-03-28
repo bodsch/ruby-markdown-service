@@ -35,7 +35,7 @@ module MarkdownParser
     def parse( markdownFile )
 
       # Use Redcarpet to convert Markdown->HTML
-      redcarpet = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+      redcarpet = Redcarpet::Markdown.new( Redcarpet::Render::HTML, :tables => true )
       markdown  = redcarpet.render( File.read( markdownFile ) )
 
       return markdown
@@ -105,6 +105,8 @@ module MarkdownParser
         sprintf( '%s/_styles/%s'       , @defaultWebRoot, @styleSheets ),
         sprintf( '%s/_styles/style.css', @defaultWebRoot )
       ]
+
+      logger.debug( "search stylesheets #{files}" )
 
       files.each do |f|
 

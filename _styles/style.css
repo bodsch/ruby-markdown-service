@@ -54,9 +54,8 @@ h6 {
 }
 
 ul {
-  border: 1px dotted gray;
+  list-style-type: none;
   margin: 5px;
-
 }
 li {
   padding: 5px;
@@ -89,21 +88,15 @@ a:hover {
 }
 
 #footer {
-
   margin-top: 5px;
   border: 1px solid #dfdfdf;
   font-size: 12px;
   padding: 10px 5px;
   text-align: right;
-
   background-color: #f4f4f4;
-
   clear: both;
   overflow: hidden;
 }
-
-
-
 
 #path {
   border: 1px solid #dfdfdf;
@@ -119,9 +112,6 @@ a:hover {
   background-image: url('/images/folder.png');
   background-repeat: no-repeat;
   background-position: left center;
-
-
-
 }
 
 #path a:last-child {
@@ -149,7 +139,6 @@ a:hover {
   background-repeat: no-repeat;
   background-position: left center;
 
-
   display: inline-block;
   list-style: none;
   font-size: 13px;
@@ -175,14 +164,72 @@ a:hover {
 }
 
 pre {
-
-  font-style: fixed;
-  background-color: lightgray;
+  border-left: 0.2em solid #d7d7d7;
+  padding: .5em !important;
+  font-size: 0.7em;
 }
 code {
-
-  font-style: fixed;
-  background-color: lightgray;
-  padding: 2px 4px;
-  margin: 0 2px;
+  background: transparent !important;
+  font-size: 1.0em;
+  line-height: 120%
 }
+
+table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 2px;
+    border-color: gray;
+    width: 90%
+}
+
+thead {
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+tfoot {
+    display: table-footer-group;
+    vertical-align: middle;
+    border-color: inherit
+}
+
+table > tr {
+    vertical-align: middle;
+}
+
+col {
+    display: table-column
+}
+
+colgroup {
+    display: table-column-group
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+    height:30px
+}
+
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+  padding-left: 4px
+}
+
+tbody tr:nth-child(odd) {
+  background: #eee;
+}
+
+th {
+    font-weight: bold
+}
+
