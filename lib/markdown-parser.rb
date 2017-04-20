@@ -19,8 +19,8 @@ module MarkdownParser
       @publicFolder   = settings.dig(:publicFolder)
       @styleSheets    = settings.dig(:styleSheets)
 
-      version              = '0.8.0'
-      date                 = '2017-03-21'
+      version              = '0.8.2'
+      date                 = '2017-04-20'
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
@@ -101,8 +101,8 @@ module MarkdownParser
 
       files = Array.new()
       files = [
-        sprintf( '%s/%s'               , @publicFolder  , @styleSheets ),
-        sprintf( '%s/_styles/%s'       , @defaultWebRoot, @styleSheets ),
+        sprintf( '%s/%s'               , @publicFolder, @styleSheets ),
+        sprintf( '%s/_styles/%s'       , @publicFolder, @styleSheets ),
         sprintf( '%s/_styles/style.css', @defaultWebRoot )
       ]
 
