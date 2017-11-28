@@ -23,14 +23,14 @@ module Sinatra
 
     configure do
 
-      @publicFolder    = ENV.fetch( 'PUBLIC_FOLDER'  , '/var/www' )
-      @restServicePort = ENV.fetch( 'PORT', 2222 )
-      @restServiceBind = ENV.fetch( 'BIND_TO', '0.0.0.0' )
-      @stylesheet      = ENV.fetch( 'STYLESHEET', 'style.css' )
+      @public_folder     = ENV.fetch( 'PUBLIC_FOLDER'  , '/var/www' )
+      @rest_service_port = ENV.fetch( 'PORT', 2222 )
+      @rest_service_bind = ENV.fetch( 'BIND_TO', '0.0.0.0' )
+      @stylesheet        = ENV.fetch( 'STYLESHEET', 'style.css' )
 
-      @defaultPath     = File.expand_path( '../', File.dirname( __FILE__ ) )
+      @default_path      = File.expand_path( '../', File.dirname( __FILE__ ) )
 
-      file      = File.new( '/var/log/sinatra.log', File::WRONLY | File::APPEND | File::CREAT, 0666 )
+      file      = File.new( '/var/log/sinatra.log', File::WRONLY | File::APPEND | File::CREAT, 0o666 )
       file.sync = true
 
       use Rack::CommonLogger, file
@@ -42,20 +42,26 @@ module Sinatra
     set :app_file, caller_files.first || $0
     set :run, Proc.new { $0 == app_file }
     set :dump_errors, true
-    set :show_exceptions, true
+    set :show_exceptions, false
 
-    set :bind, @restServiceBind
-    set :port, @restServicePort.to_i
+    set :bind, @rest_service_bind
+    set :port, @rest_service_port.to_i
 
     # -----------------------------------------------------------------------------
 
     config = {
-      :defaultPath  => @defaultPath,
-      :publicFolder => @publicFolder,
-      :styleSheets  => @stylesheet
+      default_path: @default_path,
+      public_folder: @public_folder,
+      stylesheets: @stylesheet
     }
 
     parser = MarkdownParser::Parser.new( config )
+
+    # -----------------------------------------------------------------------------
+
+    get '/health' do
+      status 200
+    end
 
     # -----------------------------------------------------------------------------
 
@@ -65,9 +71,7 @@ module Sinatra
       headers 'Content-Type' => 'text/css; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=3200'
 
-      style = File.read( parser.getStylesheet() )
-      style
-
+      File.read( parser.get_stylesheet() )
     end
 
     # serve an individual favicon
@@ -78,7 +82,7 @@ module Sinatra
 #       headers 'Content-Type' => 'text/css; charset=utf8'
 #       response.headers['Cache-Control'] = 'public, max-age=3200'
 #
-#       style = File.read( parser.getStylesheet() )
+#       style = File.read( parser.get_stylesheet() )
 #       style
 
     end
@@ -89,8 +93,7 @@ module Sinatra
       headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'
 
-      parser.generatePage( params )
-
+      parser.generate_page( params )
     end
 
     # -----------------------------------------------------------------------------

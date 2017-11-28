@@ -1,5 +1,4 @@
 
-
 require 'redcarpet'
 require 'erb'
 
@@ -15,12 +14,12 @@ module MarkdownParser
 
     def initialize( settings = {} )
 
-      @defaultWebRoot = settings.dig(:defaultPath)
-      @publicFolder   = settings.dig(:publicFolder)
-      @styleSheets    = settings.dig(:styleSheets)
+      @default_web_root = settings.dig(:default_path)
+      @public_folder    = settings.dig(:public_folder)
+      @stylesheets     = settings.dig(:stylesheets)
 
-      version              = '0.8.2'
-      date                 = '2017-04-20'
+      version              = '0.9.0'
+      date                 = '2017-11-28'
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
@@ -32,33 +31,30 @@ module MarkdownParser
 
     end
 
-    def parse( markdownFile )
+
+    def parse( markdown_file )
 
       # Use Redcarpet to convert Markdown->HTML
       redcarpet = Redcarpet::Markdown.new( Redcarpet::Render::HTML, :tables => true )
-      markdown  = redcarpet.render( File.read( markdownFile ) )
+      markdown  = redcarpet.render( File.read( markdown_file ) )
 
       return markdown
 
     end
 
 
-    def generatePage( params = {} )
+    def generate_page( params = {} )
 
-      fileName = params.dig(:splat).first
+      file_name = params.dig(:splat).first
+      file_name = 'index.md' if( file_name == '' )
+      file_name = format( '%s.md', file_name.split('.').first )
 
-      if( fileName == '' )
-        fileName = 'index.md'
-      end
-
-      fileName = sprintf( '%s.md', fileName.split('.').first )
-
-      markdownFile = nil
+      markdown_file = nil
 
       files = Array.new()
       files = [
-        sprintf( '%s/%s'         , @publicFolder  , fileName ),
-        sprintf( '%s/_default/%s', @defaultWebRoot, fileName )
+        format( '%s/%s'         , @public_folder  , file_name ),
+        format( '%s/_default/%s', @default_web_root, file_name )
       ]
 
       logger.debug( "search files #{files}" )
@@ -66,91 +62,79 @@ module MarkdownParser
       files.each do |f|
 
         if( File.exist?( f ) )
-          markdownFile = f
+          markdown_file = f
           break
         end
 
       end
 
-      if( markdownFile == nil )
-        markdownFile = sprintf( '%s/_default/404.md', @defaultWebRoot )
-      end
+      markdown_file = format( '%s/_default/404.md', @default_web_root ) if( markdown_file == nil )
 
-      logger.debug( "use file: #{markdownFile}" )
+      logger.debug( "use file: #{markdown_file}" )
 
-      template = File.read( getTemplate() )
+      template = File.read( get_template() )
 
       renderer = ERB.new( template )
 
       # Template Datas
-      title         = markdownFile.split('/').last.split('.').first
-      styleSheet    = @styleSheets
+      title         = markdown_file.split('/').last.split('.').first
+      styleSheet    = @stylesheets
       favicon       = ''
-      markdownData  = self.parse( markdownFile )
+      markdownData  = self.parse( markdown_file )
 
 
       # render the template
       return output = renderer.result(binding)
-
     end
 
 
-    def getStylesheet()
+    def get_stylesheet()
 
       stylesheet = nil
 
       files = Array.new()
       files = [
-        sprintf( '%s/%s'               , @publicFolder, @styleSheets ),
-        sprintf( '%s/_styles/%s'       , @publicFolder, @styleSheets ),
-        sprintf( '%s/_styles/style.css', @defaultWebRoot )
+        format( '%s/%s'               , @public_folder, @stylesheets ),
+        format( '%s/_styles/%s'       , @public_folder, @stylesheets ),
+        format( '%s/_styles/style.css', @default_web_root )
       ]
 
       logger.debug( "search stylesheets #{files}" )
 
       files.each do |f|
-
         if( File.exist?( f ) )
           stylesheet = f
           break
         end
-
       end
 
       logger.debug( "use stylesheet: #{stylesheet}" )
 
-      return stylesheet
-
+      stylesheet
     end
 
     private
 
-    def getTemplate( tpl = 'index.erb' )
+    def get_template( tpl = 'index.erb' )
 
       templatefile = nil
 
       files = Array.new()
       files = [
-        sprintf( '%s/_template/%s', @publicFolder  , tpl ),
-        sprintf( '%s/_template/%s', @defaultWebRoot, tpl )
+        format( '%s/_template/%s', @public_folder  , tpl ),
+        format( '%s/_template/%s', @default_web_root, tpl )
       ]
 
       logger.debug( "search templates #{files}" )
 
       files.each do |f|
-
         if( File.exist?( f ) )
           templatefile = f
           break
         end
-
       end
 
-      return templatefile
-
+      templatefile
     end
-
   end
-
-
 end
