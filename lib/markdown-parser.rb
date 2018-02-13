@@ -16,15 +16,15 @@ module MarkdownParser
 
       @default_web_root = settings.dig(:default_path)
       @public_folder    = settings.dig(:public_folder)
-      @stylesheets     = settings.dig(:stylesheets)
+      @stylesheets      = settings.dig(:stylesheets)
 
-      version              = '0.9.0'
-      date                 = '2017-11-28'
+      version              = '0.10.0'
+      date                 = '2018-02-13'
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
       logger.info( "  Version #{version} (#{date})" )
-      logger.info( '  Copyright 2017 Bodo Schulz' )
+      logger.info( '  Copyright 2017-2018 Bodo Schulz' )
       logger.info( '' )
       logger.info( '-----------------------------------------------------------------' )
       logger.info( '' )
@@ -33,13 +33,9 @@ module MarkdownParser
 
 
     def parse( markdown_file )
-
       # Use Redcarpet to convert Markdown->HTML
       redcarpet = Redcarpet::Markdown.new( Redcarpet::Render::HTML, :tables => true )
-      markdown  = redcarpet.render( File.read( markdown_file ) )
-
-      return markdown
-
+      redcarpet.render( File.read( markdown_file ) )
     end
 
 
@@ -51,7 +47,7 @@ module MarkdownParser
 
       markdown_file = nil
 
-      files = Array.new()
+      files = []
       files = [
         format( '%s/%s'         , @public_folder  , file_name ),
         format( '%s/_default/%s', @default_web_root, file_name )
@@ -60,12 +56,10 @@ module MarkdownParser
       logger.debug( "search files #{files}" )
 
       files.each do |f|
-
         if( File.exist?( f ) )
           markdown_file = f
           break
         end
-
       end
 
       markdown_file = format( '%s/_default/404.md', @default_web_root ) if( markdown_file == nil )
@@ -82,9 +76,8 @@ module MarkdownParser
       favicon       = ''
       markdownData  = self.parse( markdown_file )
 
-
       # render the template
-      return output = renderer.result(binding)
+      renderer.result(binding)
     end
 
 
@@ -92,7 +85,7 @@ module MarkdownParser
 
       stylesheet = nil
 
-      files = Array.new()
+      files = []
       files = [
         format( '%s/%s'               , @public_folder, @stylesheets ),
         format( '%s/_styles/%s'       , @public_folder, @stylesheets ),
@@ -119,7 +112,7 @@ module MarkdownParser
 
       templatefile = nil
 
-      files = Array.new()
+      files = []
       files = [
         format( '%s/_template/%s', @public_folder  , tpl ),
         format( '%s/_template/%s', @default_web_root, tpl )
