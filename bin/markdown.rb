@@ -97,7 +97,14 @@ module Sinatra
       headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'
 
-      parser.generate_page( params )
+      result = parser.generate_page( params )
+
+      r = JSON.parse( result ) if( result.is_a?( String ) )
+
+      result_status = r.dig('status').to_i
+
+      status result_status
+      r.dig('content')
     end
 
     # -----------------------------------------------------------------------------

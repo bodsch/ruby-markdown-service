@@ -44,8 +44,9 @@ module MarkdownParser
       file_name = params.dig(:splat).first
       file_name = 'index.md' if( file_name == '' )
       file_name = format( '%s.md', file_name.split('.').first )
-
       markdown_file = nil
+
+      result_code = 200
 
       files = []
       files = [
@@ -62,7 +63,10 @@ module MarkdownParser
         end
       end
 
-      markdown_file = format( '%s/_default/404.md', @default_web_root ) if( markdown_file == nil )
+      if( markdown_file == nil )
+        result_code = 404
+        markdown_file = format( '%s/_default/404.md', @default_web_root )
+      end
 
       logger.debug( "use file: #{markdown_file}" )
 
@@ -77,7 +81,7 @@ module MarkdownParser
       markdownData  = self.parse( markdown_file )
 
       # render the template
-      renderer.result(binding)
+      { status: result_code, content: renderer.result(binding) }
     end
 
 
