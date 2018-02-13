@@ -3,6 +3,7 @@ require 'redcarpet'
 require 'erb'
 
 require_relative 'logging'
+require_relative 'version'
 
 # -----------------------------------------------------------------------------
 
@@ -12,14 +13,15 @@ module MarkdownParser
 
     include Logging
 
+
     def initialize( settings = {} )
 
       @default_web_root = settings.dig(:default_path)
       @public_folder    = settings.dig(:public_folder)
       @stylesheets      = settings.dig(:stylesheets)
 
-      version              = '0.10.0'
-      date                 = '2018-02-13'
+      version              = MarkdownParser::Version
+      date                 = MarkdownParser::Date
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
@@ -78,10 +80,16 @@ module MarkdownParser
       title         = markdown_file.split('/').last.split('.').first
       styleSheet    = @stylesheets
       favicon       = ''
-      markdownData  = self.parse( markdown_file )
+      markdownData  = parse( markdown_file )
+
+      content = renderer.result(binding)
 
       # render the template
-      { status: result_code, content: renderer.result(binding) }
+      result = { status: result_code, content: content }
+
+      logger.debug("#{result}")
+
+      result
     end
 
 

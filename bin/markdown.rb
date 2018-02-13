@@ -77,6 +77,11 @@ module Sinatra
       status 200
     end
 
+    get '/version' do
+      status 200
+      parser::Version
+    end
+
     # -----------------------------------------------------------------------------
 
     # serve our stylesheet
@@ -98,6 +103,8 @@ module Sinatra
       response.headers['Cache-Control'] = 'public, max-age=300'
 
       result = parser.generate_page( params )
+
+      puts result
 
       r = JSON.parse( result ) if( result.is_a?( String ) )
 
