@@ -3,7 +3,7 @@
 # 17.03.2016 - Bodo Schulz
 #
 #
-# v0.8.0
+# v0.10.2
 
 # -----------------------------------------------------------------------------
 
@@ -75,11 +75,8 @@ module Sinatra
     #
     get '/health' do
       status 200
-    end
 
-    get '/version' do
-      status 200
-      parser::Version
+      { version: MarkdownParser::VERSION, date: MarkdownParser::DATE }.to_json
     end
 
     # -----------------------------------------------------------------------------
@@ -103,15 +100,13 @@ module Sinatra
       response.headers['Cache-Control'] = 'public, max-age=300'
 
       result = parser.generate_page( params )
+      result = JSON.parse( result ) if( result.is_a?( String ) )
 
-      puts result
-
-      r = JSON.parse( result ) if( result.is_a?( String ) )
-
-      result_status = r.dig('status').to_i
+      result_status  = result.dig(:status).to_i
+      result_content = result.dig(:content)
 
       status result_status
-      r.dig('content')
+      result_content
     end
 
     # -----------------------------------------------------------------------------

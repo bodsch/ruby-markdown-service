@@ -1,4 +1,6 @@
 
+require 'ruby_dig' if RUBY_VERSION < '2.3'
+
 require 'redcarpet'
 require 'erb'
 
@@ -13,15 +15,16 @@ module MarkdownParser
 
     include Logging
 
-
     def initialize( settings = {} )
+
+      logger.debug(settings)
 
       @default_web_root = settings.dig(:default_path)
       @public_folder    = settings.dig(:public_folder)
       @stylesheets      = settings.dig(:stylesheets)
 
-      version              = MarkdownParser::Version
-      date                 = MarkdownParser::Date
+      version              = MarkdownParser::VERSION
+      date                 = MarkdownParser::DATE
 
       logger.info( '-----------------------------------------------------------------' )
       logger.info( ' Markdown Server' )
@@ -85,11 +88,7 @@ module MarkdownParser
       content = renderer.result(binding)
 
       # render the template
-      result = { status: result_code, content: content }
-
-      logger.debug("#{result}")
-
-      result
+      { status: result_code, content: content }
     end
 
 
