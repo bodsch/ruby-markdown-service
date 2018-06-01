@@ -3,6 +3,7 @@ require 'ruby_dig' if RUBY_VERSION < '2.3'
 
 require 'redcarpet'
 require 'erb'
+require 'filemagic'
 
 require_relative 'logging'
 require_relative 'version'
