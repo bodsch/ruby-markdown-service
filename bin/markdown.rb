@@ -3,7 +3,7 @@
 # 17.03.2016 - Bodo Schulz
 #
 #
-# v0.10.2
+# v0.11.0
 
 # -----------------------------------------------------------------------------
 
@@ -91,13 +91,40 @@ module Sinatra
       File.read( parser.get_stylesheet() )
     end
 
+    # serve static files
+    #
+    ['/img/*', '/image/*', '/images/*', '/static/*'].each do |path|
+      get path do
+        result = parser.get_static_file(params)
+        result = JSON.parse( result ) if( result.is_a?( String ) )
+
+        result_status      = result.dig(:status).to_i
+        result_static_file = result.dig(:static_file)
+        result_mime_type   = result.dig(:mime_type)
+
+        if(result_status == 200 && result_static_file != nil && result_mime_type != nil)
+          headers 'Content-Type' => result_mime_type
+          response.headers['Cache-Control'] = 'public, max-age=3200'
+          send_file( result_static_file )
+        else
+          result_status = 404
+        end
+
+        status result_status
+      end
+    end
 
     # serve all the rest
     #
     get '/*' do
 
+      # puts FileMagic.new(FileMagic::MAGIC_MIME).file(__FILE__)
+
       headers 'Content-Type' => 'text/html; charset=utf8'
       response.headers['Cache-Control'] = 'public, max-age=300'
+
+      puts @public_folder
+      puts params
 
       result = parser.generate_page( params )
       result = JSON.parse( result ) if( result.is_a?( String ) )

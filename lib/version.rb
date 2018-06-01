@@ -1,6 +1,6 @@
 
 module MarkdownParser
 
-  VERSION = '0.10.2'.freeze
-  DATE = '2018-02-13'.freeze
+  VERSION = '0.11.0'.freeze
+  DATE = '2018-06-01'.freeze
 end

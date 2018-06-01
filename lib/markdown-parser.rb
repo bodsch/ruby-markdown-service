@@ -55,7 +55,7 @@ module MarkdownParser
 
       files = []
       files = [
-        format( '%s/%s'         , @public_folder  , file_name ),
+        format( '%s/%s'         , @public_folder   , file_name ),
         format( '%s/_default/%s', @default_web_root, file_name )
       ]
 
@@ -89,6 +89,49 @@ module MarkdownParser
 
       # render the template
       { status: result_code, content: content }
+    end
+
+
+    def get_static_file(params = {})
+
+      file_name = params.dig(:splat).first
+      result_code = 200
+      result_code = 404 if( file_name == '' )
+      static_file = nil
+      mime_type   = nil
+
+      puts file_name
+
+      files = []
+      files = [
+        format( '%s/%s'        , @public_folder, file_name ),
+        format( '%s/img/%s'    , @public_folder, file_name ),
+        format( '%s/images/%s' , @public_folder, file_name ),
+        format( '%s/static/%s' , @public_folder, file_name ),
+        format( '%s/_img/%s'   , @public_folder, file_name ),
+        format( '%s/_images/%s', @public_folder, file_name ),
+        format( '%s/_static/%s', @public_folder, file_name )
+      ]
+
+      logger.debug( "search files #{files}" )
+
+      files.each do |f|
+        if( File.exist?( f ) )
+          static_file = f
+          break
+        end
+      end
+
+      if( static_file == nil )
+        result_code = 404
+        static_file = nil
+      end
+
+      logger.debug( "use file: #{static_file}" )
+
+      mime_type = FileMagic.new(FileMagic::MAGIC_MIME).file(static_file) unless(static_file.nil?)
+
+      { status: result_code, mime_type: mime_type, static_file: static_file }
     end
 
 
